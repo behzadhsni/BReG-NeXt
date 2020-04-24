@@ -1,8 +1,11 @@
 # BReG-NeXt
 Implementation of the BReG-NeXt architecture
 
+
 BReG-NeXt paper can be found on 
 [arXiv](https://arxiv.org/abs/2004.08495)
+
+![overview](overview_modular3.png)
 
 # Requirements
 

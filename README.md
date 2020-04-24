@@ -21,5 +21,5 @@ pip install -r requirements.txt
 # How to run
 Simply run the `BReG-NeXt.py` file:
 ```
-python BReG-NeXt.py
+codes/>> python BReG-NeXt.py
 ```

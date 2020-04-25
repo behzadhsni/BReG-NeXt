@@ -1,5 +1,5 @@
 # BReG-NeXt
-Implementation of the BReG-NeXt architecture
+Implementation of the paper **BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient**
 
 
 BReG-NeXt paper can be found on 

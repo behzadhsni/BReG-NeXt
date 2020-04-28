@@ -26,7 +26,7 @@ As mentioned above trained parameters on the AffectNet database on BReG-NeXt-50 
 ResidualBlock[_]*[1-9]*/shortcut_mod[_]*[1-9]*/[a,c][_]*[1-9]*
 ```
 
-# How to run
+# How To Run
 Simply run the `BReG-NeXt.py` file:
 ```
 codes/>> python BReG-NeXt.py

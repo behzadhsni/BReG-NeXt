@@ -1,4 +1,6 @@
-"""Train and Eval for BReG-NeXt on AffectNet database (categorical model).
+"""Train and Eval for BReG-NeXt on a sample face database (categorical model of affect).
+   For more info, visit:
+   https://arxiv.org/pdf/2004.08495.pdf
 """
 from __future__ import absolute_import
 from __future__ import division

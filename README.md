@@ -33,7 +33,10 @@ codes/>> python BReG-NeXt.py
 ```
 
 # Try on binder or google colab
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/behzadhsni/BReG-NeXt/master?filepath=codes%2FBReG-NeXt.py)
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/psnegi/BReG-NeXt/master?filepath=codes%2FBReG_NeXt.ipynb)
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/psnegi/BReG-NeXt/blob/master/codes/BReG_NeXt.ipynb)
 
 # Write Your Own Complex Mapping
 To write your own customized complex mapping (given the restrictions and properties mentioned in the [BReG-NeXt paper](https://ieeexplore.ieee.org/document/9064942)), you need to modify [Lines 136 to 140](https://github.com/behzadhsni/BReG-NeXt/blob/master/codes/BReG-NeXt.py#L136) of the ```BReG-NeXt.py``` file. Simply write your own function for the mapping and assign it to the ```identity``` variable.

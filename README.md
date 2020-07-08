@@ -32,7 +32,7 @@ Simply run the `BReG-NeXt.py` file:
 codes/>> python BReG-NeXt.py
 ```
 
-# Try on binder or google colab(with GPU or TPU)
+# Try on binder or google colab (with GPU or TPU)
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/psnegi/BReG-NeXt/master?filepath=codes%2FBReG_NeXt.ipynb)
 

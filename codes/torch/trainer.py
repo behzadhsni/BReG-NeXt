@@ -80,11 +80,13 @@ class BReGNeXtPTLDriver(pytorch_lightning.LightningModule):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--use_focal_loss', action='store_true', help='Use focal loss when training.')
+    parser.add_argument('--train_data_path', type=str, help='The path to the .tfrecords file for training.', required=True)
+    parser.add_argument('--val_data_path', type=str, help='The path to the .tfrecords file for evaluation.', required=True)
     parser = pytorch_lightning.Trainer.add_argparse_args(parser)
     args = parser.parse_args()
 
     train_dataset = ShuffleDataset(tfrecord.torch.dataset.TFRecordDataset(
-        data_path='/home/david/Projects/BReG-NeXt/tfrecords/training_FER2013_sample.tfrecords',
+        data_path=args.train_data_path,
         index_path=None,
         description={'image_raw': 'byte', 'label': 'int'},
         transform=decode_and_preprocess_image,
@@ -92,7 +94,7 @@ if __name__ == '__main__':
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=64, num_workers=4)
 
     valid_dataset = tfrecord.torch.dataset.TFRecordDataset(
-        data_path='/home/david/Projects/BReG-NeXt/tfrecords/validation_FER2013_sample.tfrecords',
+        data_path=args.val_data_path,
         index_path=None,
         description={'image_raw': 'byte', 'label': 'int'},
         transform=decode_and_preprocess_image,

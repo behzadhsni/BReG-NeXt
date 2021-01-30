@@ -5,12 +5,10 @@
 
 from argparse import ArgumentParser
 
-import cv2
 import torch
 import torchvision
 import tfrecord
 import pytorch_lightning
-import random
 
 from BReGNeXt import BReGNeXt
 from utils import ShuffleDataset

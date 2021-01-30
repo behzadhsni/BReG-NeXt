@@ -1,10 +1,16 @@
+# Copyright (c) 2021 Regents of the University of California
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+
 
 import torch
-import itertools
 
-class BRegNextShortcutModifier(torch.nn.Model):
+class BRegNextShortcutModifier(torch.nn.Module):
 
     def __init__(self,):
+        super(BRegNextShortcutModifier, self).__init__()
+
         self._a = torch.nn.Parameter(torch.FloatTensor([1.0]), requires_grad=True)
         self._c = torch.nn.Parameter(torch.FloatTensor([1.0]), requires_grad=True)
 
@@ -14,16 +20,19 @@ class BRegNextShortcutModifier(torch.nn.Model):
         return  (numl / denom)
 
 
-class BReGNeXtResidualLayer(torch.nn.Model):
+class BReGNeXtResidualLayer(torch.nn.Module):
 
-    def __init__(self, in_channels: int, out_channels: int, downsample_stride: int=1):
+    def __init__(self, in_channels, out_channels, downsample_stride = 1):
+        super(BReGNeXtResidualLayer, self).__init__()
+
         self._out_channels = out_channels
         self._in_channels = in_channels
-        self._downsample_stride = 1 if downsample is None else downsample
+        self._downsample_stride = downsample_stride
 
-        # TODO: These may have slightly different layer initializations.
         self._conv0 = torch.nn.Conv2d(in_channels, out_channels, 3, downsample_stride)
-        self._conv0 = torch.nn.Conv2d(out_channels, out_channels, 3, 1)
+        torch.nn.init.kaiming_uniform_(self._conv0.weight)
+        self._conv1 = torch.nn.Conv2d(out_channels, out_channels, 3, 1)
+        torch.nn.init.kaiming_uniform_(self._conv1.weight)
         self._shortcut = BRegNextShortcutModifier()
         self._batchnorm_conv0 = torch.nn.BatchNorm2d(self._in_channels)
         self._batchnorm_conv1 = torch.nn.BatchNorm2d(self._out_channels)
@@ -32,38 +41,54 @@ class BReGNeXtResidualLayer(torch.nn.Model):
         # First convolution
         normed_inputs = inputs if self._batchnorm_conv0 is None else self._batchnorm_conv0(inputs)
         normed_inputs = torch.nn.functional.elu(normed_inputs)
+        normed_inputs = torch.nn.functional.pad(normed_inputs, (1,1,1,1,0,0))
         conv0_outputs = self._conv0(normed_inputs)
 
         # Second convolution
         normed_conv0_outputs = conv0_outputs if self._batchnorm_conv1 is None else self._batchnorm_conv1(conv0_outputs)
         normed_conv0_outputs = torch.nn.functional.elu(normed_conv0_outputs)
+        normed_conv0_outputs = torch.nn.functional.pad(normed_conv0_outputs, (1,1,1,1,0,0))
         conv1_outputs = self._conv1(normed_conv0_outputs)
 
-        # TODO: Are the shortcut weights always the same for every layer?
+
         shortcut_modifier = self._shortcut(inputs)
         if self._downsample_stride > 1:
             shortcut_modifier = torch.nn.functional.avg_pool2d(shortcut_modifier, self._downsample_stride, self._downsample_stride)
 
-        # Downsample the projection
-        if self._out_channels != self._in_channels:
+        # Upsample the shortcut in the channel dimension if necessary
+        if self._out_channels > self._in_channels:
             pad_dimension = (self._out_channels - self._in_channels) // 2
-            shortcut_modifier = torch.nn.functional.pad(shortcut_modifier, [pad_dimension, pad_dimension])
+            shortcut_modifier = torch.nn.functional.pad(shortcut_modifier, [0,0,0,0,pad_dimension, pad_dimension])
+            # NOTE: This code doesn't handle the case if _out_channels < _in_channels
 
         return conv1_outputs + shortcut_modifier
 
 
 class BRegNextResidualBlock(torch.nn.Module):
 
+    def __init__(self, n_blocks, in_channels, out_channels, downsample_stride=1):
+        super(BRegNextResidualBlock, self).__init__()
+        layers = [BReGNeXtResidualLayer(in_channels, out_channels, downsample_stride)] + [
+            BReGNeXtResidualLayer(out_channels, out_channels, downsample_stride) for _ in range(n_blocks - 1)
+        ]
+        self._layer_stack = torch.nn.Sequential(*layers)
+
     def forward(self, inputs):
-        # TODO: Adjust the layer stack, since the number of channels will be different for the first block vs. the other blocks
         return self._layer_stack(inputs)
 
 
-class BReG_NeXt(torch.nn.Module):
+class BReGNeXt(torch.nn.Module):
 
     def __init__(self, n_classes: int = 8) -> None:
+
+        super(BReGNeXt, self).__init__()
+
+        self._conv0 = torch.nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3)
+
         self._model = torch.nn.Sequential(
-            torch.nn.Conv2D(in_channels=3, out_channels=32),
+            # NOTE: The original BReGNeXt code uses a truncated normal initialization for this convolution, however
+            # that is not implemented in PyTorch 1.7 - This defaults to a uniform initializer in PyTorch.
+
             BRegNextResidualBlock(n_blocks=7, in_channels=32, out_channels=32),
             BRegNextResidualBlock(n_blocks=1, in_channels=32, out_channels=64, downsample_stride=2),
             BRegNextResidualBlock(n_blocks=8, in_channels=64, out_channels=64),
@@ -75,11 +100,9 @@ class BReG_NeXt(torch.nn.Module):
         )
         self._fc0 = torch.nn.Linear(128, n_classes)
 
-    def conv0_params(self,):
-        return self._conv0.parameters()
-
-    def model_params(self,):
-        return itertools.chain.from_iterable([self._fc0.parameters(), self._model.parameters()])
-
     def forward(self, x):
-        return self._fc0(self._model(x).reshape(-1, 128))
+        # These two blocks simulate "SAME" padding from TensorFlow
+        net = torch.nn.functional.pad(x, (1,1,1,1,0,0))
+        net = self._conv0(net)
+        # Handle the rest of the net
+        return self._fc0(self._model(net).reshape(-1, 128))

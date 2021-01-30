@@ -72,7 +72,7 @@ class BReGNeXtPTLDriver(pytorch_lightning.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self._model.parameters(), lr=(self.lr or self.learning_rate), weight_decay=0.0001)
+        optimizer = torch.optim.Adam(self._model.parameters(), lr=self.learning_rate, weight_decay=0.0001)
         scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.80)
         return [optimizer], [scheduler]
 

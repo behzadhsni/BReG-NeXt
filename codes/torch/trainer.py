@@ -80,6 +80,7 @@ class BReGNeXtPTLDriver(pytorch_lightning.LightningModule):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
+    parser.add_argument('--use_focal_loss', action='store_true', help='Use focal loss when training.')
     parser = pytorch_lightning.Trainer.add_argparse_args(parser)
     args = parser.parse_args()
 
@@ -89,7 +90,7 @@ if __name__ == '__main__':
         description={'image_raw': 'byte', 'label': 'int'},
         transform=decode_and_preprocess_image,
     ), 1024)
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=64, num_workers=12)
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=64, num_workers=4)
 
     valid_dataset = tfrecord.torch.dataset.TFRecordDataset(
         data_path='/home/david/Projects/BReG-NeXt/tfrecords/validation_FER2013_sample.tfrecords',
@@ -97,9 +98,9 @@ if __name__ == '__main__':
         description={'image_raw': 'byte', 'label': 'int'},
         transform=decode_and_preprocess_image,
     )
-    valid_dataloader = torch.utils.data.DataLoader(valid_dataset, batch_size=64, num_workers=12)
+    valid_dataloader = torch.utils.data.DataLoader(valid_dataset, batch_size=64, num_workers=4)
 
     # Fit the model to the trainer.
-    model = BReGNeXtPTLDriver()
+    model = BReGNeXtPTLDriver(use_focal_loss=args.use_focal_loss)
     trainer = pytorch_lightning.Trainer.from_argparse_args(args)
     trainer.fit(model, train_dataloader, valid_dataloader)

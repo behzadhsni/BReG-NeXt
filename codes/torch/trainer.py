@@ -41,11 +41,12 @@ def decode_and_preprocess_image(features):
 
 class BReGNeXtPTLDriver(pytorch_lightning.LightningModule):
 
-    def __init__(self, use_focal_loss = False):
+    def __init__(self, use_focal_loss = False, learning_rate = 0.0001):
 
         super(BReGNeXtPTLDriver, self).__init__()
 
         self._use_focal_loss = use_focal_loss
+        self.learning_rate = learning_rate
         self._model = BReGNeXt()
 
     def training_step(self, batch, batch_idx):
@@ -71,7 +72,7 @@ class BReGNeXtPTLDriver(pytorch_lightning.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self._model.parameters(), lr=0.0001, weight_decay=0.0001)
+        optimizer = torch.optim.Adam(self._model.parameters(), lr=(self.lr or self.learning_rate), weight_decay=0.0001)
         scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.80)
         return [optimizer], [scheduler]
 

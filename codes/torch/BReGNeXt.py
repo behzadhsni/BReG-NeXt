@@ -5,8 +5,8 @@ import itertools
 class BRegNextShortcutModifier(torch.nn.Model):
 
     def __init__(self,):
-        self._a = torch.nn.Parameter(1, dtype=torch.float32, requires_grad=True)
-        self._c = torch.nn.Parameter(1, dtype=torch.float32, requires_grad=True)
+        self._a = torch.nn.Parameter(torch.FloatTensor([1.0]), requires_grad=True)
+        self._c = torch.nn.Parameter(torch.FloatTensor([1.0]), requires_grad=True)
 
     def forward(self, inputs):
         numl = torch.atan((self._a * inputs) / torch.sqrt(self._c ** 2 + 1))

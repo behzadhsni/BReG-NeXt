@@ -24,7 +24,7 @@ def focal_loss2(input_tensor, target_tensor, weight=None, gamma=2, reduction='me
 _image_transform = torchvision.transforms.Compose([
     torchvision.transforms.ToPILImage(),
     torchvision.transforms.RandomHorizontalFlip(),
-    torchvision.transforms.ColorJitter(brightness=(0, 0.05), contrast=(0.7,1.3), saturation=(0.6, 1.6), hue=0.08),
+    torchvision.transforms.ColorJitter(brightness=0.05, contrast=(0.7,1.3), saturation=(0.6, 1.6), hue=0.08),
     torchvision.transforms.RandomResizedCrop((64,64)),
     torchvision.transforms.ToTensor(),
 ])

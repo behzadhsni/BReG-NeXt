@@ -1,4 +1,4 @@
 keras==2.2.2
-tensorflow==1.14.0
+tensorflow==2.11.1
 tflearn==0.3.2
 scikit-learn==0.19.2
